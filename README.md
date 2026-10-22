@@ -1,0 +1,6 @@
+# numclean – numeric data cleaning pipeline (Python + T-SQL)
+`python -m numclean.pipeline sample_raw clean_out` → every .csv/.txt/.tsv in the folder: encoding detected (ASCII / UTF-8 / UTF-8-BOM / legacy via charset-normalizer) and rewritten as UTF-8; delimiter sniffed; numeric columns (auto-detected or `--numeric a,b`) parsed: thousands/decimal separators (1,234.56 and 1.234,56), currency/space/NBSP stripped, (123) and 123- negatives; unparseable values become NULL and are logged. Outputs: clean files, `_corrections_log.csv` (file,row,column,old->new), `_summary.json` (encoding, rows in/out, counts). Row counts in = out always.
+Steps are plain functions (detect_encoding, parse_number, clean_file) so the logic ports directly to R or C/C++.
+SQL Server: `sql/clean_numeric.sql` – fn_ParseNumber (same rules), usp_CleanNumeric (adds <col>_clean, logs to dbo.CleanLog, rolls back if before/after counts differ), schedulable as an Agent job step.
+Tests: `pytest -q`. Requirements: pandas, charset-normalizer, pytest.
+Status: Python pipeline tested here; the T-SQL script was written for SQL Server 2017+ but not executed in this demo environment (no SQL Server available) – it will be tested against your instance/sample table.
